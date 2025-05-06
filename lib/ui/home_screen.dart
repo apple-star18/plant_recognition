@@ -34,21 +34,83 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     final result = await _controller.uploadImage();
-    Navigator.of(context).pop();
-    showUploadToast(result);
 
+    if (!mounted) return;
+    Navigator.of(context).pop();
+
+    if (result == null) {
+      showUploadToast('No response from server.', false);
+      return;
+    }
+
+    final status = result['status'];
+    if (status == 'success') {
+      final data = result['data'];
+      if (data != null && data is Map<String, dynamic>) {
+        _showPlantDetailsDialog(data);
+      } else {
+        showUploadToast('Upload succeeded, but data is missing.', false);
+      }
+    } else {
+      final errorMessage = result['message'] ?? 'Upload failed.';
+      showUploadToast(errorMessage, false);
+    }
   }
 
-  void showUploadToast(bool isSuccess) {
+  void showUploadToast(String message, bool isSuccess) {
     Fluttertoast.showToast(
-      msg: isSuccess
-          ? "Upload successful!"
-          : "Upload failed. Please try again.",
+      msg: message,
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
       backgroundColor: isSuccess ? Colors.green : Colors.red,
       textColor: Colors.white,
       fontSize: 16.0,
+    );
+  }
+
+  void _showPlantDetailsDialog(Map<String, dynamic> details) {
+    final resultDetails = details['resultDetails'] ?? {};
+    final commonNames = (resultDetails['common_names'] as List?)?.cast<String>() ?? [];
+    final taxonomy = (resultDetails['taxonomy'] as Map?) ?? {};
+    final description = resultDetails['description']?['value'] ?? 'No information';
+    final url = resultDetails['url'] ?? 'No link';
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('🌿 Plant details information'),
+        content: SingleChildScrollView(
+          child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('📛 Normal Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(commonNames.join(', ')),
+                  const SizedBox(height: 10),
+                  Text('📖 Description', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(description),
+                  const SizedBox(height: 10),
+                  Text('🔬 Taxonomy', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ...taxonomy.entries.map((e) => Text('${e.key}: ${e.value}')),
+                  const SizedBox(height: 10),
+                  Text('🔗 Wiki link', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(url, style: const TextStyle(color: Colors.blue)),
+                ],
+              ),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
     );
   }
 

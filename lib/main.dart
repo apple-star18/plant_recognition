@@ -3,8 +3,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:plant_recognition/auth/login.dart';
 import 'package:plant_recognition/auth/signup.dart';
 import 'package:plant_recognition/ui/home_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
+  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
       url: 'https://ncowkixvuefbtdffkjyb.supabase.co',
