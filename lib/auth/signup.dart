@@ -1,7 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:plant_recognition/auth/auth_service.dart';
 
-class SignupScreen extends StatelessWidget {
+class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
+
+  @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+  String? _error;
+
+  Future<void> _signUp() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      await AuthService.signUpWithEmail(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sign Up successful!')),
+        );
+        Navigator.pushReplacementNamed(context, '/home'); // 로그인 후 홈으로
+      }
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +61,10 @@ class SignupScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const TextField(
+              TextField(
+                controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'example@mail.com',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -39,10 +81,11 @@ class SignupScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const TextField(
+              TextField(
+                controller: _passwordController,
                 obscureText: true,
                 keyboardType: TextInputType.visiblePassword,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'password',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -51,6 +94,13 @@ class SignupScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
+              if (_error != null) ...[
+                Text(
+                  _error!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+                const SizedBox(height: 12),
+              ],
               SizedBox(
                 width: double.infinity,
                 height: 48,
@@ -61,8 +111,10 @@ class SignupScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: () {},
-                  child: const Text(
+                  onPressed: _isLoading ? null : _signUp,
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
                     'Sign Up',
                     style: TextStyle(color: Colors.white),
                   ),
@@ -71,11 +123,10 @@ class SignupScreen extends StatelessWidget {
               const SizedBox(height: 16),
               GestureDetector(
                 onTap: () {
-                  // Handle sign up
-                  Navigator.pushNamed(context, '/');
+                  Navigator.pushNamed(context, '/'); // 로그인 페이지로
                 },
                 child: const Text(
-                  'Already have you an account? Sign in',
+                  'Already have an account? Sign in',
                   style: TextStyle(
                     color: Colors.blue,
                     fontSize: 16,
