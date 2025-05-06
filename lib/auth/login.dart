@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plant_recognition/auth/auth_service.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -130,15 +131,34 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   onPressed: () async {
                     try {
-                      await AuthService.signInWithGoogle();
-                      Navigator.pushReplacementNamed(context, '/home');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Login with Google account successful!')),
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const Center(child: CircularProgressIndicator()),
                       );
+
+                      await AuthService.signInWithGoogle();
+                      Navigator.of(context).pop();
+
+                      Navigator.pushReplacementNamed(context, '/home');
+                      Fluttertoast.showToast(
+                        msg: 'Login with Google account successful!',
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        backgroundColor: Colors.green,
+                        textColor: Colors.white,
+                        fontSize: 16.0,
+                      );
+
                     } catch (e) {
                       print(e);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Login failed: $e')),
+                      Fluttertoast.showToast(
+                        msg: 'Login Failed: $e',
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        backgroundColor: Colors.green,
+                        textColor: Colors.white,
+                        fontSize: 16.0,
                       );
                     }
                   },

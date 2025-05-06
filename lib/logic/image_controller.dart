@@ -21,11 +21,23 @@ class ImageController {
     return file;
   }
 
-  Future<Map<String, dynamic>?> uploadImage() async {
-    final file = imageFile.value;
-    if (file == null) return null;
+  // Future<Map<String, dynamic>?> uploadImage() async {
+  //   final file = imageFile.value;
+  //   if (file == null) return null;
+  //
+  //   final response = await UploadService.upload(file);
+  //   return response;
+  // }
 
-    final response = await UploadService.upload(file);
-    return response;
+  Future<bool> uploadImage() async {
+    final file = imageFile.value;
+    if (file == null) return false;
+
+    try {
+      final response = await UploadService.upload(file);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

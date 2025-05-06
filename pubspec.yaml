@@ -35,6 +35,9 @@ dependencies:
   supabase_flutter: ^2.9.0
   image_picker: ^1.1.2
   permission_handler: ^11.0.0
+  mime: ^2.0.0
+  fluttertoast: ^8.2.2
+
 # file_picker: ^5.2.5
 
   #  sign_in_with_apple:

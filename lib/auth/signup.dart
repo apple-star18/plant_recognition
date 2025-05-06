@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plant_recognition/auth/auth_service.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -26,8 +27,13 @@ class _SignupScreenState extends State<SignupScreen> {
         _passwordController.text.trim(),
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sign Up successful!')),
+        Fluttertoast.showToast(
+          msg: 'Login with Google account successful!',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
         Navigator.pushReplacementNamed(context, '/home'); // 로그인 후 홈으로
       }
